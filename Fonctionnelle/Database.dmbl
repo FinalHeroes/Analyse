@@ -1,0 +1,281 @@
+enum GuildMemberRank {
+  Owner
+  Admin
+  Officer
+  Member
+}
+
+enum ItemRarity {
+  Common
+  Uncommon
+  Rare
+  Legendary
+  Unique
+}
+
+enum StructureType {
+  Camp
+  Village
+  City
+  Fort
+  Castle
+  Dungeon
+  MonsterCamp
+  Caravan
+  Bank
+}
+
+Table User [headercolor: #f39c12] {
+  Id uuid [pk]
+  FirstName varchar(30) [not null]
+  LastName varchar(30) [not null]
+  Email varchar(60) [not null, unique]
+  PasswordHash text [not null]
+  BankId uuid [not null, ref: > Bank.Id]
+  CreatedAt timestamp [not null]
+  UpdatedAt timestamp [not null]
+  IsActive boolean [default: true]
+}
+
+Table PlayerCharatacter [headercolor: #f39c12] {
+  Id uuid [pk]
+  Owner uuid [not null, ref: > User.Id]
+  Name varchar(30) [not null]
+  AvatarId integer [not null, ref: - Avatar.Id]
+  WorldId integer [not null, ref: > Square.World]
+  WorldX integer [not null, ref: > Square.X]
+  WorldY integer [not null, ref: > Square.Y]
+  Experience integer [not null]
+  Level integer [not null]
+  Strength integer [not null]
+  Dexterity integer [not null]
+  Vitality integer [not null]
+  Intellect integer [not null]
+  CurrentHealth integer [not null]
+  CurrentMana integer [not null]
+  CurrentEnergy integer [not null]
+  Gold integer [not null]
+  Gem integer [not null]
+  IsDead boolean [default: false]
+  IsActive boolean [default: true]
+  CreatedAt timestamp [not null]
+  UpdatedAt timestamp [not null]
+}
+
+Table Guild [headercolor: #8e44ad] {
+  Id uuid [pk]
+  Name varchar(40) [not null, unique]
+  BankId uuid [not null, ref: > Bank.Id]
+  CreatedAt timestamp [not null]
+  UpdatedAt timestamp [not null]
+}
+
+Table GuildMember [headercolor: #8e44ad] {
+  PlayerId uuid [not null, ref: > User.Id]
+  GuildId uuid [not null, ref: > Guild.Id]
+  PlayerRank GuildMemberRank [not null]
+  CreatedAt timestamp [not null]
+  
+  indexes {
+    (PlayerId, GuildId) [pk]
+  }
+}
+
+Table GuildMessage [headercolor: #8e44ad] {
+  Id uuid [pk]
+  Poster uuid [not null, ref: > User.Id]
+  GuildId uuid [not null, ref: > Guild.Id]
+  Title varchar(40) [not null]
+  Content text [not null]
+  CreatedAt timestamp [not null]
+  UpdatedAt timestamp [not null]
+}
+
+Table CharacterEquipment [headercolor: #f39c12] {
+  PlayerId uuid [pk, ref: - PlayerCharatacter.Id]
+  HeadSlot uuid [ref: > ItemRoll.Id]
+  ChestSlot uuid [ref: > ItemRoll.Id]
+  BeltSlot uuid [ref: > ItemRoll.Id]
+  BootSlot uuid [ref: > ItemRoll.Id]
+  LeftHandSlot uuid [ref: > ItemRoll.Id]
+  RightHandSlot uuid [ref: > ItemRoll.Id]
+  Ring1Slot uuid [ref: > ItemRoll.Id]
+  Ring2Slot uuid [ref: > ItemRoll.Id]
+  NeckSlot uuid [ref: > ItemRoll.Id]
+  BagSlot uuid [ref: > ItemRoll.Id]
+  ArtifactSlot uuid [ref: > ItemRoll.Id]
+}
+
+Table Avatar [headercolor: #f39c12] {
+  Id integer [pk]
+  Filename varchar(100)
+}
+
+Table ItemRoll [headercolor: #27ae60] {
+  Id uuid [pk]
+  ItemId integer [not null, ref: > Item.Id]
+  StrengthMult float [default: 1.0]
+  DexterityMult float [default: 1.0]
+  VitalityMult float [default: 1.0]
+  IntellectMult float [default: 1.0]
+  CriticalChanceMult float [default: 1.0]
+  CriticalDamageMult float [default: 1.0]
+  DodgeChanceMult float [default: 1.0]
+  HealthMult float [default: 1.0]
+  ManaMult float [default: 1.0]
+  ArmorMult float [default: 1.0]
+  DamageMult float [default: 1.0]
+  HealMult float [default: 1.0]
+  ItemDropMult float [default: 1.0]
+  GoldDropMult float [default: 1.0]
+  Special text
+  CreatedAt timestamp [not null]
+}
+
+Table Item [headercolor: #27ae60] {
+  Id integer [pk]
+  Name varchar(30)
+  Description text
+  CategoryId integer [not null, ref: > ItemCategory.Id]
+  Rarity ItemRarity [not null]
+  Heal integer [default: 0]
+  StrengthMod integer [default: 0]
+  DexterityMod integer [default: 0]
+  VitalityMod integer [default: 0]
+  IntellectMod integer [default: 0]
+  CriticalChanceMod integer [default: 0]
+  CriticalDamageMod integer [default: 0]
+  DodgeChanceMod integer [default: 0]
+  HealthMod integer [default: 0]
+  ManaMod integer [default: 0]
+  ArmorMod integer [default: 0]
+  DamageMod float [default: 0]
+  ItemDropMod float [default: 0]
+  GoldDropMod float [default: 0]
+  Special text [null]
+  SkillId integer [null, ref: > Skill.Id]
+  CreatedAt timestamp [not null]
+  UpdatedAt timestamp [not null]
+}
+
+Table ItemCategory [headercolor: #27ae60] {
+  Id integer [pk]
+  ParentId integer [ref: > ItemCategory.Id]
+  Name varchar(30)
+  Description text
+  CreatedAt timestamp [not null]
+}
+
+Table World [headercolor: #d35400] {
+  Id integer [pk]
+  Name varchar(40)
+  LimitX integer [not null]
+  LimitY integer [not null]
+  Color varchar(7)
+  BgImage varchar(40)
+}
+
+Table Square [headercolor: #d35400] {
+  World integer [ref: > World.Id]
+  X integer [not null]
+  Y integer [not null]
+  Image varchar(40)
+  
+  indexes {
+    (World, X, Y) [pk]
+  }
+}
+
+Table NonPlayerCharacter [headercolor: #d35400] {
+  Id integer [pk]
+  WorldId integer [not null, ref: > Square.World]
+  WorldX integer [not null, ref: > Square.X]
+  WorldY integer [not null, ref: > Square.Y]
+  Name varchar(40) [unique, not null]
+  Description text
+  ShopId integer [null, ref: > Shop.Id]
+}
+
+Table Structure [headercolor: #d35400] {
+  Id integer [pk]
+  WorldId integer [not null, ref: > Square.World]
+  WorldX integer [not null, ref: > Square.X]
+  WorldY integer [not null, ref: > Square.Y]
+  Name varchar(40) [not null]
+  Description text
+  Type StructureType [not null, default: "Camp"]
+  ShopId integer [null, ref: > Shop.Id]
+}
+
+Table MonsterType [headercolor: #c0392b] {
+  Id integer [pk]
+  Name varchar(40) [not null]
+  Description text
+}
+
+Table Monster [headercolor: #c0392b] {
+  Id integer [pk]
+  Name varchar(40) [not null, unique]
+  Description text
+  TypeId integer [not null, ref: > MonsterType.Id]
+  Level integer [not null]
+  Strength integer [not null]
+  Dexterity integer [not null]
+  Vitality integer [not null]
+  Intellect integer [not null]
+  Picture varchar(40)
+}
+
+Table Encounter [headercolor: #d35400] {
+  Id integer [pk]
+  WorldId integer [not null, ref: > Square.World]
+  WorldX integer [not null, ref: > Square.X]
+  WorldY integer [not null, ref: > Square.Y]
+  MonsterId integer [not null, ref: > Monster.Id]
+  SpawnChance float [default: 0.50]
+  MinGold integer [not null]
+  MaxGold integer [not null]
+}
+
+Table EncounterDrop [headercolor: #c0392b] {
+  ItemId integer [ref: > Item.Id]
+  EncounterId integer [ref: > Encounter.Id]
+  DropChance float
+  MinQuantity integer
+  MaxQuantity integer
+  
+  indexes {
+    (ItemId, EncounterId) [pk]
+  }
+}
+
+Table Shop [headercolor: #2c3e50] {
+  Id integer [pk]
+  PriceMod float [not null, default: 1.0]
+}
+
+Table ShopSells [headercolor: #2c3e50] {
+  ShopId integer [ref: > Shop.Id]
+  Sells uuid [ref: > ItemRoll.Id]
+  Price integer [not null]
+  
+  indexes {
+    (ShopId, Sells) [pk]
+  }
+}
+
+Table Bank [headercolor: #2c3e50] {
+  Id uuid [pk]
+  GoldAmount integer [not null]
+  UpdatedAt timestamp [not null]
+}
+
+Table Skill  [headercolor: #27ae60] {
+  Id integer [pk]
+  Name varchar(40) [not null, unique]
+  Description text [not null]
+  ManaCost integer [not null]
+  EnergyCost integer [not null, default: 3]
+  Damage integer [not null]
+  Heal integer [not null, default: 0]
+}
