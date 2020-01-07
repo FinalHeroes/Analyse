@@ -37,6 +37,16 @@ Table User [headercolor: #f39c12] {
   IsActive boolean [default: true]
 }
 
+Table UserMessage [headercolor: #f39c12] {
+  Id uuid [pk]
+  Sender uuid [not null, ref: > User.Id]
+  Receiver uuid [not null, ref: > User.Id]
+  Previous uuid [null, default: 'null', ref: - UserMessage.Id]
+  CreatedAt timestamp [not null]
+  Title varchar(60) [not null]
+  Content text
+}
+
 Table PlayerCharatacter [headercolor: #f39c12] {
   Id uuid [pk]
   Owner uuid [not null, ref: > User.Id]
