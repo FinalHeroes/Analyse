@@ -177,6 +177,7 @@ Table Item [headercolor: #27ae60] {
   DamageMod float [default: 0]
   ItemDropMod float [default: 0]
   GoldDropMod float [default: 0]
+  InventorySpace integer [default: 0]
   Special text [null]
   StackLimit integer [not null, default: 1]
   SkillId integer [null, ref: > Skill.Id]
