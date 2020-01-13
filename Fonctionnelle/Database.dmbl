@@ -35,6 +35,7 @@ Table User [headercolor: #f39c12] {
   CreatedAt timestamp [not null]
   UpdatedAt timestamp [not null]
   IsActive boolean [default: true]
+  IsAdmin boolean [default: false]
 }
 
 Table UserMessage [headercolor: #f39c12] {
@@ -70,6 +71,20 @@ Table PlayerCharatacter [headercolor: #f39c12] {
   IsActive boolean [default: true]
   CreatedAt timestamp [not null]
   UpdatedAt timestamp [not null]
+}
+
+Table CharacterSlap [headercolor: #f39c12] {
+  Id uuid [pk]
+  SlapperId uuid [not null, ref: > PlayerCharatacter.Id]
+  SlappedId uuid [not null, ref: > PlayerCharatacter.Id]
+  CreatedAt timestamp
+}
+
+Table CharacterInventory [headercolor: #f39c12] {
+  Id uuid [pk]
+  RollId uuid [ref: > ItemRoll.Id]
+  Owner uuid [ref: > PlayerCharatacter.Id]
+  Quantity integer [not null, default: 1]
 }
 
 Table Guild [headercolor: #8e44ad] {
@@ -162,7 +177,9 @@ Table Item [headercolor: #27ae60] {
   DamageMod float [default: 0]
   ItemDropMod float [default: 0]
   GoldDropMod float [default: 0]
+  InventorySpace integer [default: 0]
   Special text [null]
+  StackLimit integer [not null, default: 1]
   SkillId integer [null, ref: > Skill.Id]
   CreatedAt timestamp [not null]
   UpdatedAt timestamp [not null]
